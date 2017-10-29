@@ -3,7 +3,7 @@
 
 
 .PHONY: all all-CI build clean default unit-test release tar checks go-version gofmt-src \
-	golint-src govet-src run-build compile-with-docker
+	golint-src govet-src run-build compile-with-docker build-ovs push-ovs
 
 DEFAULT_DOCKER_VERSION := 1.12.6
 V2PLUGIN_DOCKER_VERSION := 1.13.1
@@ -30,6 +30,7 @@ SYSTEM_TESTS_TO_RUN ?= "00SSH|Basic|Network|Policy|TestTrigger|ACIM|Netprofile"
 K8S_SYSTEM_TESTS_TO_RUN ?= "00SSH|Basic|Network|Policy"
 ACI_GW_IMAGE ?= "contiv/aci-gw:04-12-2017.2.2_1n"
 export CONTIV_V2PLUGIN_NAME ?= contiv/v2plugin:0.1
+export BUILD_VERSION ?= $(shell cat version/CURRENT_VERSION)
 
 all: build unit-test system-test ubuntu-tests
 
@@ -408,12 +409,14 @@ release-built-version: tar
 	NIGHTLY_RELEASE=${NIGHTLY_RELEASE} scripts/release.sh
 	@make clean-tar
 
-# The first "release" below is not a target, it is a "target-specific variable"
-#   and sets (and in this case exports) a variable to the target's environment
-# The second release runs make as a subshell but with BUILD_VERSION set
-# to write the correct version for assets everywhere
-#
 # GITHUB_USER and GITHUB_TOKEN are needed be set (used by github-release)
-release: export BUILD_VERSION=$(shell cat version/CURRENT_VERSION)
 release:
 	@make release-built-version
+
+build-ovs:
+	docker build -t "contiv/ovsdb-server:$(BUILD_VERSION)" -f ovs/Dockerfile-ovsdb-server ovs
+	docker build -t "contiv/ovs-vswitchd:$(BUILD_VERSION)" -f ovs/Dockerfile-ovs-vswitchd ovs
+
+push-ovs:
+	docker push "contiv/ovsdb-server:$(BUILD_VERSION)"
+	docker push "contiv/ovs-vswitchd:$(BUILD_VERSION)"

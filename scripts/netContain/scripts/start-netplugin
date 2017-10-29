@@ -1,0 +1,73 @@
+#!/bin/bash
+#
+# Copyright 2017 Cisco Systems Inc. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+set -euo pipefail
+
+CMD=("/contiv/bin/netplugin")
+if [ -n "${dbg_flag:-}" ]
+then
+    CMD+=("$dbg_flag")
+fi
+if [ -n "${plugin_mode:-}" ]
+then
+    CMD+=("-plugin-mode=$plugin_mode")
+fi
+if [ -n "${vxlan_port:-}" ]
+then
+    CMD+=("-vxlan-port=$vxlan_port")
+fi
+if [ -n "${iflist:-}" ]
+then
+    CMD+=("-vlan-if=$iflist")
+fi
+if [ -n "${cluster_store:-}" ]
+then
+    CMD+=("-cluster-store=$cluster_store")
+fi
+if [ -n "${ctrl_ip:-}" -a "${ctrl_ip:-}" != "none" ]
+then
+    CMD+=("-ctrl-ip=$ctrl_ip")
+fi
+if [ -n "${vtep_ip:-}" -a "${vtep_ip:-}" != "none" ]
+then
+    CMD+=("-vtep-ip=$vtep_ip")
+fi
+
+            if [ "$cstore" != "" ]; then
+                cstore_param="-cluster-store"
+            fi
+            if [ "$vtep_ip" != "" ]; then
+                vtep_ip_param="-vtep-ip"
+            fi
+            if [ "$vlan_if" != "" ]; then
+                vlan_if_param="-vlan-if"
+            fi
+            /contiv/bin/netplugin $debug $cstore_param $cstore $vtep_ip_param $vtep_ip $vlan_if_param $vlan_if -plugin-mode $plugin || true
+
+
+# Needed for netplugin to connect with OVS, This needs to be fixed as well. netplugin should have OVS locally.
+echo "0.0.0.0 localhost" >>/etc/hosts
+
+# This could take a bit if ovsdb-server or ovs-vswitchd isn't ready yet.
+echo "Configuring OVS manager..."
+while ! ovs-vsctl set-manager ptcp:6640
+do
+    echo "Attempt failed, retrying in 1 second."
+    sleep 1
+done
+echo "OVS manager configured successfully."
+
+echo "Starting Contiv Netplugin (${CMD[@]})..."
+exec "${CMD[@]}"

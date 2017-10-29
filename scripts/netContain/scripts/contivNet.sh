@@ -77,9 +77,14 @@ while getopts ":xmp:v:i:c:drl:o:" opt; do
 done
 
 if [ $cleanup == false ] && [ $netplugin == true ]; then
-	echo "Initializing OVS"
-	/contiv/scripts/ovsInit.sh
-	echo "Initialized OVS"
+	# This could take a bit if ovsdb-server or ovs-vswitchd isn't ready yet.
+	echo "Configuring OVS manager..."
+	while ! ovs-vsctl set-manager ptcp:6640
+	do
+	    echo "Attempt failed, retrying in 1 second."
+	    sleep 1
+	done
+	echo "OVS manager configured successfully."
 fi
 
 if [ $cleanup == true ] || [ $reinit == true ]; then
