@@ -56,6 +56,7 @@ func NewNWClient() *NWClient {
 // AddPod adds a pod to contiv using the cni api
 func (c *NWClient) AddPod(podInfo interface{}) (*cniapi.RspAddPod, error) {
 
+log.Errorf("foobitch addpod k8s client start")
 
 	data := cniapi.RspAddPod{}
 	buf, err := json.Marshal(podInfo)
