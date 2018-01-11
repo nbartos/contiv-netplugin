@@ -151,6 +151,7 @@ log.Errorf("foobitch1")
 			}
 
 		}
+log.Errorf("foobitch1a")
 
 	case protocol.IPv4_MSG:
 log.Errorf("foobitch2")

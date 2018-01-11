@@ -70,6 +70,7 @@ func getPodInfo(ppInfo *cniapi.CNIPodAttr) error {
 func addPodToContiv(nc *clients.NWClient, pInfo *cniapi.CNIPodAttr) {
 
 	// Add to contiv network
+log.Errorf("foobitch add pod")
 	result, err := nc.AddPod(pInfo)
 	if err != nil || result.Result != 0 {
 		log.Errorf("EP create failed for pod: %s/%s",
