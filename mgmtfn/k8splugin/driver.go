@@ -409,6 +409,8 @@ func addPod(w http.ResponseWriter, r *http.Request, vars map[string]string) (int
 		}
 	}()
 
+log.Errorf("foobitch namespace %s", pInfo.NwNameSpace)
+
 	// convert netns to pid that netlink needs
 	pid, epErr := nsToPID(pInfo.NwNameSpace)
 	if epErr != nil {
