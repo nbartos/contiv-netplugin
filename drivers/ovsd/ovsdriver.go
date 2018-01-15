@@ -410,13 +410,39 @@ log.Errorf("foobitch ovs CreateEndpoint error 5 (%s): %v", intfName, err)
 				return err
 			}
 
+log.Errorf("foobitch ovs CreateEndpoint hack 1")
+	// Save the oper state
+	operEp = &drivers.OperEndpointState{
+		NetID:       cfgEp.NetID,
+		EndpointID:  cfgEp.EndpointID,
+		ServiceName: cfgEp.ServiceName,
+		IPAddress:   cfgEp.IPAddress,
+		IPv6Address: cfgEp.IPv6Address,
+		MacAddress:  cfgEp.MacAddress,
+		IntfName:    cfgEp.IntfName,
+		//PortName:    intfName,
+		PortName:    cfgEp.IntfName,
+		HomingHost:  cfgEp.HomingHost,
+		VtepIP:      cfgEp.VtepIP}
+	operEp.StateDriver = d.oper.StateDriver
+	operEp.ID = id
+	err = operEp.Write()
+	if err != nil {
+log.Errorf("foobitch ovs CreateEndpoint hack 2 error: %v", err)
+		return err
+	}
+
 log.Errorf("foobitch ovs CreateEndpoint return early 6")
 			return nil
 		}
+log.Errorf("foobitch ovs CreateEndpoint hack force 6a")
 		log.Printf("Found mismatching oper state for Ep, cleaning it. Config: %+v, Oper: %+v",
 			cfgEp, operEp)
 		d.DeleteEndpoint(operEp.ID)
 	}
+
+//log.Errorf("foobitch ovs CreateEndpoint return early hack 6b")
+//	return nil
 
 	if cfgNw.NwType == "infra" {
 		// For infra nw, port name is network name

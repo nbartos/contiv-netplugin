@@ -127,15 +127,15 @@ func (self *Vrouter) SwitchDisconnected(sw *ofctrl.OFSwitch) {
 
 // Handle incoming packet
 func (self *Vrouter) PacketRcvd(sw *ofctrl.OFSwitch, pkt *ofctrl.PacketIn) {
-log.Errorf("foobitch-1")
+//log.Errorf("foobitch-1")
 	if pkt.TableId == SRV_PROXY_SNAT_TBL_ID || pkt.TableId == SRV_PROXY_DNAT_TBL_ID {
-log.Errorf("foobitch0")
+//log.Errorf("foobitch0")
 		// these are destined to service proxy
 		self.svcProxy.HandlePkt(pkt)
 		return
 	}
 
-log.Errorf("foobitch1")
+//log.Errorf("foobitch1")
 	switch pkt.Data.Ethertype {
 	case 0x0806:
 		if (pkt.Match.Type == openflow13.MatchType_OXM) &&
@@ -151,28 +151,28 @@ log.Errorf("foobitch1")
 			}
 
 		}
-log.Errorf("foobitch1a")
+//log.Errorf("foobitch1a")
 
 	case protocol.IPv4_MSG:
-log.Errorf("foobitch2")
+//log.Errorf("foobitch2")
 		var inPort uint32
 		if (pkt.TableId == 0) && (pkt.Match.Type == openflow13.MatchType_OXM) &&
 			(pkt.Match.Fields[0].Class == openflow13.OXM_CLASS_OPENFLOW_BASIC) &&
 			(pkt.Match.Fields[0].Field == openflow13.OXM_FIELD_IN_PORT) {
-log.Errorf("foobitch3")
+//log.Errorf("foobitch3")
 			// get the input port number
 			switch t := pkt.Match.Fields[0].Value.(type) {
 			case *openflow13.InPortField:
-log.Errorf("foobitch4")
+//log.Errorf("foobitch4")
 				inPort = t.InPort
 			default:
-log.Errorf("foobitch5")
+//log.Errorf("foobitch5")
 				log.Debugf("unknown match type %v for ipv4 pkt", t)
 				return
 			}
 		}
 
-log.Errorf("foobitch6")
+//log.Errorf("foobitch6")
 		ipPkt := pkt.Data.Data.(*protocol.IPv4)
 		switch ipPkt.Protocol {
 		case protocol.Type_UDP:

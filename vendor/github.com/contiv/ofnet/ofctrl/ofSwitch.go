@@ -200,7 +200,7 @@ func (self *OFSwitch) handleMessages(dpid net.HardwareAddr, msg util.Message) {
 	case *openflow13.PacketIn:
 		log.Debugf("Received packet(ofctrl): %+v", t)
 		// send packet rcvd callback
-        log.Errorf("foobitch31")
+//        log.Errorf("foobitch31")
 		self.app.PacketRcvd(self, (*PacketIn)(t))
 
 	case *openflow13.FlowRemoved:
