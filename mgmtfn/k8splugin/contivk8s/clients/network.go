@@ -56,7 +56,7 @@ func NewNWClient() *NWClient {
 // AddPod adds a pod to contiv using the cni api
 func (c *NWClient) AddPod(podInfo interface{}) (*cniapi.RspAddPod, error) {
 
-log.Errorf("foobitch addpod k8s client start")
+log.Errorf("foobitch AddPod k8s client start")
 
 	data := cniapi.RspAddPod{}
 	buf, err := json.Marshal(podInfo)
@@ -66,7 +66,7 @@ log.Errorf("foobitch addpod k8s client start")
 
 	body := bytes.NewBuffer(buf)
 	url := c.baseURL + cniapi.EPAddURL
-log.Errorf("foobitch addpod k8s client url=%s, body=%s", url, body)
+log.Errorf("foobitch AddPod k8s client posting url=%s, body=%s", url, body)
 	r, err := c.client.Post(url, "application/json", body)
 	if err != nil {
 		return nil, err
@@ -95,6 +95,7 @@ log.Errorf("foobitch addpod k8s client url=%s, body=%s", url, body)
 		log.Errorf("POST Status '%s' status code %d \n", r.Status, r.StatusCode)
 		return nil, fmt.Errorf("%s", r.Status)
 	}
+log.Errorf("foobitch AddPod k8s client post returned 200")
 
 	response, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -106,6 +107,7 @@ log.Errorf("foobitch addpod k8s client url=%s, body=%s", url, body)
 		return nil, err
 	}
 
+log.Errorf("foobitch AddPod k8s client returning: %s", data)
 	return &data, nil
 }
 

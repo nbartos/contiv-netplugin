@@ -87,6 +87,7 @@ func epCleanUp(req *epSpec) error {
 // createEP creates the specified EP in contiv
 func createEP(req *epSpec) (*epAttr, error) {
 
+log.Errorf("foobitch createEP start")
 	// if the ep already exists, treat as error for now.
 	netID := req.Network + "." + req.Tenant
 	ep, err := utils.GetEndpoint(netID + "-" + req.EndpointID)
@@ -110,6 +111,7 @@ func createEP(req *epSpec) (*epAttr, error) {
 
 	var mresp master.CreateEndpointResponse
 	err = cluster.MasterPostReq("/plugin/createEndpoint", &mreq, &mresp)
+log.Errorf("foobitch createEP post to /plugin/createEndpoint")
 	if err != nil {
 		epCleanUp(req)
 		return nil, err
@@ -119,6 +121,7 @@ func createEP(req *epSpec) (*epAttr, error) {
 	log.Infof("Got endpoint create resp from master: %+v", mresp)
 
 	// Ask netplugin to create the endpoint
+log.Errorf("foobitch createEP netPlugin.CreateEndpoint: %s", netID + "-" + req.EndpointID)
 	err = netPlugin.CreateEndpoint(netID + "-" + req.EndpointID)
 	if err != nil {
 		log.Errorf("Endpoint creation failed. Error: %s", err)
@@ -127,6 +130,7 @@ func createEP(req *epSpec) (*epAttr, error) {
 	}
 
 	ep, err = utils.GetEndpoint(netID + "-" + req.EndpointID)
+log.Errorf("foobitch createEP utils.GetEndpoint %s: %s", netID + "-" + req.EndpointID, ep)
 	if err != nil {
 		epCleanUp(req)
 		return nil, err
@@ -135,6 +139,7 @@ func createEP(req *epSpec) (*epAttr, error) {
 	log.Debug(ep)
 	// need to get the subnetlen from nw state.
 	nw, err := utils.GetNetwork(netID)
+log.Errorf("foobitch createEP utils.GetNetwork %s: %s", netID, nw)
 	if err != nil {
 		epCleanUp(req)
 		return nil, err
@@ -150,6 +155,7 @@ func createEP(req *epSpec) (*epAttr, error) {
 		epResponse.IPv6Gateway = nw.IPv6Gateway
 	}
 
+log.Errorf("foobitch createEP returning %s", epResponse)
 	return &epResponse, nil
 }
 
@@ -369,6 +375,7 @@ func setErrorResp(resp *cniapi.RspAddPod, msg string, err error) {
 // addPod is the handler for pod additions
 func addPod(w http.ResponseWriter, r *http.Request, vars map[string]string) (interface{}, error) {
 
+log.Errorf("foobitch addPod start")
 	resp := cniapi.RspAddPod{}
 
 	logEvent("add pod")

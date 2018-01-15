@@ -334,7 +334,7 @@ func (d *OvsDriver) CreateEndpoint(id string) error {
 		epgBandwidth int64
 		dscp         int
 	)
-
+log.Errorf("foobitch ovs CreateEndpoint start")
 	cfgEp := &mastercfg.CfgEndpointState{}
 	cfgEp.StateDriver = d.oper.StateDriver
 	err = cfgEp.Read(id)
@@ -469,6 +469,8 @@ func (d *OvsDriver) CreateEndpoint(id string) error {
 			operEp.Clear()
 		}
 	}()
+
+log.Errorf("foobitch ovs CreateEndpoint returning")
 	return nil
 }
 
