@@ -70,7 +70,7 @@ func getPodInfo(ppInfo *cniapi.CNIPodAttr) error {
 func addPodToContiv(nc *clients.NWClient, pInfo *cniapi.CNIPodAttr) {
 
 	// Add to contiv network
-log.Errorf("foobitch k8s plugin entry 1")
+log.Errorf("foobitch k8s cni binary ADD entry 1")
 	result, err := nc.AddPod(pInfo)
 	if err != nil || result.Result != 0 {
 		log.Errorf("EP create failed for pod: %s/%s",
@@ -96,6 +96,8 @@ log.Errorf("foobitch k8s plugin entry 1")
 		}
 		os.Exit(1)
 	}
+
+log.Errorf("foobitch k8s cni binary AddPod finished")
 
 	log.Infof("EP created IP: %s\n", result.IPAddress)
 	// Write the ip address of the created endpoint to stdout
@@ -134,12 +136,15 @@ log.Errorf("foobitch k8s plugin entry 1")
 	}
 
 	log.Infof("Response from CNI executable: \n%s", fmt.Sprintf("%s", data))
+log.Errorf("foobitch k8s cni binary returning this data to k8s: %s", fmt.Sprintf("%s", data))
 	fmt.Printf(fmt.Sprintf("%s", data))
 }
 
 func deletePodFromContiv(nc *clients.NWClient, pInfo *cniapi.CNIPodAttr) {
 
+log.Errorf("foobitch k8s cni binary running DEL entry point")
 	err := nc.DelPod(pInfo)
+log.Errorf("foobitch k8s cni binary running DelPod finished")
 	if err != nil {
 		log.Errorf("DelEndpoint returned %v", err)
 	} else {
