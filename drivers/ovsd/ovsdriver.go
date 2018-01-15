@@ -339,6 +339,7 @@ log.Errorf("foobitch ovs CreateEndpoint start")
 	cfgEp.StateDriver = d.oper.StateDriver
 	err = cfgEp.Read(id)
 	if err != nil {
+log.Errorf("foobitch ovs CreateEndpoint error 1: %v", err)
 		return err
 	}
 
@@ -348,6 +349,7 @@ log.Errorf("foobitch ovs CreateEndpoint start")
 	err = cfgNw.Read(cfgEp.NetID)
 	if err != nil {
 		log.Errorf("Unable to get network %s. Err: %v", cfgEp.NetID, err)
+log.Errorf("foobitch ovs CreateEndpoint error 2 (Unable to get network %s): %v", cfgEp.NetID, err)
 		return err
 	}
 
@@ -372,6 +374,7 @@ log.Errorf("foobitch ovs CreateEndpoint start")
 		} else if core.ErrIfKeyExists(err) == nil {
 			log.Infof("EPG %s not found: %v. will use network based tag ", cfgEp.EndpointGroupKey, err)
 		} else {
+log.Errorf("foobitch ovs CreateEndpoint error 3: %v", err)
 			return err
 		}
 	}
@@ -391,6 +394,7 @@ log.Errorf("foobitch ovs CreateEndpoint start")
 	operEp.StateDriver = d.oper.StateDriver
 	err = operEp.Read(id)
 	if core.ErrIfKeyExists(err) != nil {
+log.Errorf("foobitch ovs CreateEndpoint error 4: %v", err)
 		return err
 	} else if err == nil {
 		// check if oper state matches cfg state. In case of mismatch cleanup
@@ -402,9 +406,11 @@ log.Errorf("foobitch ovs CreateEndpoint start")
 			err = sw.UpdatePort(operEp.PortName, cfgEp, pktTag, cfgNw.PktTag, dscp, skipVethPair)
 			if err != nil {
 				log.Errorf("Error creating port %s. Err: %v", intfName, err)
+log.Errorf("foobitch ovs CreateEndpoint error 5 (%s): %v", intfName, err)
 				return err
 			}
 
+log.Errorf("foobitch ovs CreateEndpoint return early 6")
 			return nil
 		}
 		log.Printf("Found mismatching oper state for Ep, cleaning it. Config: %+v, Oper: %+v",
@@ -419,6 +425,7 @@ log.Errorf("foobitch ovs CreateEndpoint start")
 		// Get the interface name to use
 		intfName, err = d.getIntfName()
 		if err != nil {
+log.Errorf("foobitch ovs CreateEndpoint error 7: %v", err)
 			return err
 		}
 	}
@@ -430,6 +437,7 @@ log.Errorf("foobitch ovs CreateEndpoint start")
 	err = sw.CreatePort(intfName, cfgEp, pktTag, cfgNw.PktTag, cfgEpGroup.Burst, dscp, skipVethPair, epgBandwidth)
 	if err != nil {
 		log.Errorf("Error creating port %s. Err: %v", intfName, err)
+log.Errorf("foobitch ovs CreateEndpoint error 8 (%s): %v", intfName, err)
 		return err
 	}
 
@@ -443,6 +451,7 @@ log.Errorf("foobitch ovs CreateEndpoint start")
 	d.oper.localEpInfoMutex.Unlock()
 	err = d.oper.Write()
 	if err != nil {
+log.Errorf("foobitch ovs CreateEndpoint error 9: %v", err)
 		return err
 	}
 	// Save the oper state
@@ -461,6 +470,7 @@ log.Errorf("foobitch ovs CreateEndpoint start")
 	operEp.ID = id
 	err = operEp.Write()
 	if err != nil {
+log.Errorf("foobitch ovs CreateEndpoint error 10: %v", err)
 		return err
 	}
 
@@ -470,7 +480,7 @@ log.Errorf("foobitch ovs CreateEndpoint start")
 		}
 	}()
 
-log.Errorf("foobitch ovs CreateEndpoint returning")
+log.Errorf("foobitch ovs CreateEndpoint returning at end")
 	return nil
 }
 
