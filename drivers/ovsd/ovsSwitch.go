@@ -339,7 +339,7 @@ log.Errorf("foobitch CreatePort intfName=%s, ovsPortName=%s", intfName, ovsPortN
 	}
 
 	// If the port already exists in OVS, remove it first
-	if sw.ovsdbDriver.IsPortNamePresent(ovsPortName) {
+/*	if sw.ovsdbDriver.IsPortNamePresent(ovsPortName) {
 		log.Debugf("Removing existing interface entry %s from OVS", ovsPortName)
 
 		// Delete it from ovsdb
@@ -347,13 +347,16 @@ log.Errorf("foobitch CreatePort intfName=%s, ovsPortName=%s", intfName, ovsPortN
 		if err != nil {
 			log.Errorf("Error deleting port %s from OVS. Err: %v", ovsPortName, err)
 		}
-	}
+	}*/
+
+	if !sw.ovsdbDriver.IsPortNamePresent(ovsPortName) {
 	// Ask OVSDB driver to add the port
 	err = sw.ovsdbDriver.CreatePort(ovsPortName, ovsIntfType, cfgEp.ID, pktTag, burst, bandwidth)
 	if err != nil {
 		return err
 	}
 	dbUpdated = true
+	}
 
 	// Wait a little for OVS to create the interface
 	time.Sleep(300 * time.Millisecond)
@@ -842,7 +845,7 @@ func (sw *OvsSwitch) AddHostPort(intfName string, intfNum, network int, isHostNS
 	portID := "host" + intfName
 
 	// If the port already exists in OVS, remove it first
-	if sw.ovsdbDriver.IsPortNamePresent(ovsPortName) {
+/*	if sw.ovsdbDriver.IsPortNamePresent(ovsPortName) {
 		log.Infof("Removing existing interface entry %s from OVS", ovsPortName)
 
 		// Delete it from ovsdb
@@ -850,13 +853,16 @@ func (sw *OvsSwitch) AddHostPort(intfName string, intfNum, network int, isHostNS
 		if err != nil {
 			log.Errorf("Error deleting port %s from OVS. Err: %v", ovsPortName, err)
 		}
-	}
+	}*/
+	//ipStr, _ := netutils.PortToHostIPMAC(intfNum, network)
+	if !sw.ovsdbDriver.IsPortNamePresent(ovsPortName) {
 
 	// Ask OVSDB driver to add the port as an access port
 	err = sw.ovsdbDriver.CreatePort(ovsPortName, ovsPortType, portID, hostVLAN, 0, 0)
 	if err != nil {
 		log.Errorf("Error adding hostport %s to OVS. Err: %v", intfName, err)
 		return "", err
+	}
 	}
 
 	// Get the openflow port number for the interface
@@ -896,7 +902,6 @@ func (sw *OvsSwitch) AddHostPort(intfName string, intfNum, network int, isHostNS
 			sw.ovsdbDriver.DeletePort(intfName)
 		}
 	}()
-
 	return ipStr, nil
 }
 

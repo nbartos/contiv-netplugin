@@ -155,18 +155,9 @@ log.Errorf("foobitch processInfraNwCreate start")
 
 	// Assign IP to interface
 	ipCIDR := fmt.Sprintf("%s/%d", mresp.EndpointConfig.IPAddress, nwCfg.SubnetLen)
-log.Errorf("foobitch netutils.SetInterfaceIP(%s, %s)", nwCfg.NetworkName, ipCIDR) 
 	err = netutils.SetInterfaceIP(nwCfg.NetworkName, ipCIDR)
 	if err != nil {
 		log.Errorf("Could not assign ip: %s", err)
-
-		if nwCfg.NetworkName == contivVxGWName {
-			log.Errorf("foobitch hack addVxGWRoutes(%s, %s, %s)", netPlugin, mresp.EndpointConfig.IPAddress)
-			addVxGWRoutes(netPlugin, mresp.EndpointConfig.IPAddress)
-		} else {
-			log.Errorf("foobitch hack no addVxGWRoutes")
-		}
-
 		return err
 	}
 
