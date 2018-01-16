@@ -139,7 +139,6 @@ log.Errorf("foobitch createEP utils.GetEndpoint %s: %s", netID + "-" + req.Endpo
 	log.Debug(ep)
 	// need to get the subnetlen from nw state.
 	nw, err := utils.GetNetwork(netID)
-log.Errorf("foobitch createEP utils.GetNetwork %s: %s", netID, nw)
 	if err != nil {
 		epCleanUp(req)
 		return nil, err

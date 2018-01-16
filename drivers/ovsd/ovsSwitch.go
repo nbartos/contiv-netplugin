@@ -303,6 +303,7 @@ func (sw *OvsSwitch) CreatePort(intfName string, cfgEp *mastercfg.CfgEndpointSta
 
 	// Get OVS port name
 	ovsPortName := getOvsPortName(intfName, skipVethPair)
+log.Errorf("foobitch CreatePort intfName=%s, ovsPortName=%s", intfName, ovsPortName)
 	defer func() {
 		if err != nil {
 			if vethCreated {
@@ -446,6 +447,7 @@ func (sw *OvsSwitch) UpdatePort(intfName string, cfgEp *mastercfg.CfgEndpointSta
 
 	// Get OVS port name
 	ovsPortName := getOvsPortName(intfName, skipVethPair)
+log.Errorf("foobitch UpdatePort intfName=%s, ovsPortName=%s", intfName, ovsPortName)
 
 	// Add the endpoint to ofnet
 	// Get the openflow port number for the interface

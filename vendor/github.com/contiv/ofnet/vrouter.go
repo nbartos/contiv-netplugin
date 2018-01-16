@@ -226,6 +226,7 @@ func (self *Vrouter) GlobalConfigUpdate(cfg OfnetGlobalConfig) error {
 
 // Add a local endpoint and install associated local route
 func (self *Vrouter) AddLocalEndpoint(endpoint OfnetEndpoint) error {
+log.Errorf("foobitch AddLocalEndpoint start")
 	dNATTbl := self.ofSwitch.GetTable(SRV_PROXY_DNAT_TBL_ID)
 
 	// check to make sure we have vlan to vni mapping
@@ -455,6 +456,7 @@ func (self *Vrouter) RemoveLocalEndpoint(endpoint OfnetEndpoint) error {
 
 // UpdateLocalEndpoint update local endpoint state
 func (self *Vrouter) UpdateLocalEndpoint(endpoint *OfnetEndpoint, epInfo EndpointInfo) error {
+log.Errorf("foobitch UpdateLocalEndpoint start")
 	oldDscp := endpoint.Dscp
 
 	// Remove existing DSCP flows if required
@@ -495,6 +497,7 @@ func (self *Vrouter) UpdateLocalEndpoint(endpoint *OfnetEndpoint, epInfo Endpoin
 
 // AddHostPort sets up host access.
 func (self *Vrouter) AddHostPort(hp HostPortInfo) error {
+log.Errorf("foobitch AddHostPort start")
 	if hp.Kind == "NAT" && self.hostNATInfo.PortNo != 0 {
 		log.Errorf("Host NAT port exists: %+v", self.hostNATInfo)
 		return fmt.Errorf("Host NAT port exists")
@@ -543,6 +546,7 @@ func (self *Vrouter) AddHostPort(hp HostPortInfo) error {
 
 // RemoveHostPort sets up host access.
 func (self *Vrouter) RemoveHostPort(hp uint32) error {
+log.Errorf("foobitch RemoveHostPort start")
 	if hp == self.hostNATInfo.PortNo {
 		self.hostNATInfo.PortNo = 0
 		inNATFlow, _ := self.hostNATFlowDB.Get("inNATFlow")
@@ -658,6 +662,7 @@ func (self *Vrouter) RemoveLocalIpv6Flow(endpoint OfnetEndpoint) error {
 // Add virtual tunnel end point. This is mainly used for mapping remote vtep IP
 // to ofp port number.
 func (self *Vrouter) AddVtepPort(portNo uint32, remoteIp net.IP) error {
+log.Errorf("foobitch AddVtepPort start")
 	// Install VNI to vlan mapping for each vni
 	log.Infof("Adding VTEP for portno %v , remote IP : %v", portNo, remoteIp)
 	dnsVtepFlow, err := self.inputTable.NewFlow(ofctrl.FlowMatch{
@@ -744,6 +749,7 @@ func (self *Vrouter) AddVtepPort(portNo uint32, remoteIp net.IP) error {
 
 // Remove a VTEP port
 func (self *Vrouter) RemoveVtepPort(portNo uint32, remoteIp net.IP) error {
+log.Errorf("foobitch RemoveVtepPort start")
 	if f, ok := self.portDnsFlowDb.Get(fmt.Sprintf("%d", portNo)); ok {
 		if dnsVtepFlow, ok := f.(*ofctrl.Flow); ok {
 			if err := dnsVtepFlow.Delete(); err != nil {
@@ -765,6 +771,7 @@ func (self *Vrouter) RemoveVtepPort(portNo uint32, remoteIp net.IP) error {
 // Add a vlan.
 // This is mainly used for mapping vlan id to Vxlan VNI
 func (self *Vrouter) AddVlan(vlanId uint16, vni uint32, vrf string) error {
+log.Errorf("foobitch AddVlan start")
 
 	// check if the vlan already exists. if it does, we are done
 	if self.vlanDb[vlanId] != nil {
@@ -829,6 +836,7 @@ func (self *Vrouter) AddVlan(vlanId uint16, vni uint32, vrf string) error {
 
 // Remove a vlan
 func (self *Vrouter) RemoveVlan(vlanId uint16, vni uint32, vrf string) error {
+log.Errorf("foobitch RemoveVlan start")
 	vlan := self.vlanDb[vlanId]
 	if vlan == nil {
 		log.Fatalf("Could not find the vlan %d", vlanId)
@@ -852,6 +860,7 @@ func (self *Vrouter) RemoveVlan(vlanId uint16, vni uint32, vrf string) error {
 
 // AddEndpoint Add an endpoint to the datapath
 func (self *Vrouter) AddEndpoint(endpoint *OfnetEndpoint) error {
+log.Errorf("foobitch AddEndpoint start")
 	if endpoint.Vni == 0 {
 		return nil
 	}
@@ -859,10 +868,12 @@ func (self *Vrouter) AddEndpoint(endpoint *OfnetEndpoint) error {
 	// Lookup the VTEP for the endpoint
 	vtepPort := self.agent.getvtepTablePort(endpoint.OriginatorIp.String())
 	if vtepPort == nil {
-		log.Warnf("Could not find the VTEP for endpoint: %+v", endpoint)
+		log.Warnf("2 Could not find the VTEP for endpoint: %+v", endpoint)
 
 		// Return if VTEP is not found. We'll install the route when VTEP is added
 		return nil
+	} else {
+		log.Errorf("foobitch AddEndpoint vtepPort=%+v endpoint: %+v", vtepPort, endpoint)
 	}
 
 	// Install the endpoint in OVS
@@ -933,6 +944,7 @@ func (self *Vrouter) AddEndpoint(endpoint *OfnetEndpoint) error {
 
 // RemoveEndpoint removes an endpoint from the datapath
 func (self *Vrouter) RemoveEndpoint(endpoint *OfnetEndpoint) error {
+log.Errorf("foobitch RemoveEndpoint start")
 	// Find the flow entry
 	if endpoint.Vni == 0 {
 		return nil
@@ -976,7 +988,7 @@ func (self *Vrouter) AddRemoteIpv6Flow(endpoint *OfnetEndpoint) error {
 	// Lookup the VTEP for the endpoint
 	vtepPort := self.agent.getvtepTablePort(endpoint.OriginatorIp.String())
 	if vtepPort == nil {
-		log.Warnf("Could not find the VTEP for endpoint: %+v", endpoint)
+		log.Warnf("1 Could not find the VTEP for endpoint: %+v", endpoint)
 
 		// Return if VTEP is not found. We'll install the route when VTEP is added
 		return nil

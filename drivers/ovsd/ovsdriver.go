@@ -60,23 +60,27 @@ type OvsDriverOperState struct {
 
 // Write the state
 func (s *OvsDriverOperState) Write() error {
+log.Errorf("foobitch ovs Write start")
 	key := fmt.Sprintf(ovsOperPath, s.ID)
 	return s.StateDriver.WriteState(key, s, json.Marshal)
 }
 
 // Read the state given an ID.
 func (s *OvsDriverOperState) Read(id string) error {
+log.Errorf("foobitch ovs Read start")
 	key := fmt.Sprintf(ovsOperPath, id)
 	return s.StateDriver.ReadState(key, s, json.Unmarshal)
 }
 
 // ReadAll reads all the state
 func (s *OvsDriverOperState) ReadAll() ([]core.State, error) {
+log.Errorf("foobitch ovs ReadAll start")
 	return s.StateDriver.ReadAllState(ovsOperPathPrefix, s, json.Unmarshal)
 }
 
 // Clear removes the state.
 func (s *OvsDriverOperState) Clear() error {
+log.Errorf("foobitch ovs Clear start")
 	key := fmt.Sprintf(ovsOperPath, s.ID)
 	return s.StateDriver.ClearState(key)
 }
@@ -126,6 +130,7 @@ func (d *OvsDriver) getIntfName() (string, error) {
 
 // Init initializes the OVS driver.
 func (d *OvsDriver) Init(info *core.InstanceInfo) error {
+log.Errorf("foobitch ovs Init start")
 
 	if info == nil || info.StateDriver == nil {
 		return core.Errorf("Invalid arguments. instance-info: %+v", info)
@@ -219,6 +224,7 @@ func (d *OvsDriver) Init(info *core.InstanceInfo) error {
 
 //DeleteHostAccPort deletes the access port
 func (d *OvsDriver) DeleteHostAccPort(id string) error {
+log.Errorf("foobitch ovs DeleteHostAccPort start")
 	sw, found := d.switchDb["host"]
 	if found {
 		operEp := &drivers.OperEndpointState{}
@@ -238,6 +244,7 @@ func (d *OvsDriver) DeleteHostAccPort(id string) error {
 
 // CreateHostAccPort creates an access port
 func (d *OvsDriver) CreateHostAccPort(portName, globalIP string, net int) (string, error) {
+log.Errorf("foobitch ovs CreateHostAccPort start")
 	sw, found := d.switchDb["host"]
 	if found {
 		num := strings.Replace(portName, "hport", "", 1)
@@ -258,6 +265,7 @@ func (d *OvsDriver) CreateHostAccPort(portName, globalIP string, net int) (strin
 
 // Deinit performs cleanup prior to destruction of the OvsDriver
 func (d *OvsDriver) Deinit() {
+log.Errorf("foobitch ovs Deinit start")
 	log.Infof("Cleaning up ovsdriver")
 
 	// cleanup both vlan and vxlan OVS instances
@@ -273,6 +281,7 @@ func (d *OvsDriver) Deinit() {
 
 // CreateNetwork creates a network by named identifier
 func (d *OvsDriver) CreateNetwork(id string) error {
+log.Errorf("foobitch ovs CreateNetwork start")
 	cfgNw := mastercfg.CfgNetworkState{}
 	cfgNw.StateDriver = d.oper.StateDriver
 	err := cfgNw.Read(id)
@@ -295,6 +304,7 @@ func (d *OvsDriver) CreateNetwork(id string) error {
 
 // DeleteNetwork deletes a network by named identifier
 func (d *OvsDriver) DeleteNetwork(id, subnet, nwType, encap string, pktTag, extPktTag int, gateway string, tenant string) error {
+log.Errorf("foobitch ovs DeleteNetwork start")
 	log.Infof("delete net %s, nwType %s, encap %s, tags: %d/%d", id, nwType, encap, pktTag, extPktTag)
 
 	// Find the switch based on network type
@@ -405,44 +415,18 @@ log.Errorf("foobitch ovs CreateEndpoint error 4: %v", err)
 			// Ask the switch to update the port
 			err = sw.UpdatePort(operEp.PortName, cfgEp, pktTag, cfgNw.PktTag, dscp, skipVethPair)
 			if err != nil {
-				log.Errorf("Error creating port %s. Err: %v", intfName, err)
-log.Errorf("foobitch ovs CreateEndpoint error 5 (%s): %v", intfName, err)
+				log.Errorf("Error creating port %s. Err: %v", operEp.PortName, err)
+log.Errorf("foobitch ovs CreateEndpoint error 5 (%s): %v", operEp.PortName, err)
 				return err
 			}
-
-log.Errorf("foobitch ovs CreateEndpoint hack 1")
-	// Save the oper state
-	operEp = &drivers.OperEndpointState{
-		NetID:       cfgEp.NetID,
-		EndpointID:  cfgEp.EndpointID,
-		ServiceName: cfgEp.ServiceName,
-		IPAddress:   cfgEp.IPAddress,
-		IPv6Address: cfgEp.IPv6Address,
-		MacAddress:  cfgEp.MacAddress,
-		IntfName:    cfgEp.IntfName,
-		//PortName:    intfName,
-		PortName:    cfgEp.IntfName,
-		HomingHost:  cfgEp.HomingHost,
-		VtepIP:      cfgEp.VtepIP}
-	operEp.StateDriver = d.oper.StateDriver
-	operEp.ID = id
-	err = operEp.Write()
-	if err != nil {
-log.Errorf("foobitch ovs CreateEndpoint hack 2 error: %v", err)
-		return err
-	}
 
 log.Errorf("foobitch ovs CreateEndpoint return early 6")
 			return nil
 		}
-log.Errorf("foobitch ovs CreateEndpoint hack force 6a")
 		log.Printf("Found mismatching oper state for Ep, cleaning it. Config: %+v, Oper: %+v",
 			cfgEp, operEp)
 		d.DeleteEndpoint(operEp.ID)
 	}
-
-//log.Errorf("foobitch ovs CreateEndpoint return early hack 6b")
-//	return nil
 
 	if cfgNw.NwType == "infra" {
 		// For infra nw, port name is network name
@@ -512,6 +496,7 @@ log.Errorf("foobitch ovs CreateEndpoint returning at end")
 
 //UpdateEndpointGroup updates the epg
 func (d *OvsDriver) UpdateEndpointGroup(id string) error {
+log.Errorf("foobitch ovs UpdateEndpointGroup start")
 	log.Infof("Received endpoint group update for %s", id)
 	var (
 		err          error
@@ -557,6 +542,7 @@ func (d *OvsDriver) UpdateEndpointGroup(id string) error {
 
 // DeleteEndpoint deletes an endpoint by named identifier.
 func (d *OvsDriver) DeleteEndpoint(id string) error {
+log.Errorf("foobitch ovs DeleteEndpoint start")
 	epOper := drivers.OperEndpointState{}
 	epOper.StateDriver = d.oper.StateDriver
 	err := epOper.Read(id)
@@ -602,7 +588,6 @@ func (d *OvsDriver) DeleteEndpoint(id string) error {
 
 // CreateRemoteEndpoint creates a remote endpoint by named identifier
 func (d *OvsDriver) CreateRemoteEndpoint(id string) error {
-
 	log.Debug("OVS driver ignoring remote EP create as it uses its own EP sync")
 	return nil
 }
@@ -615,6 +600,7 @@ func (d *OvsDriver) DeleteRemoteEndpoint(id string) error {
 
 // AddPeerHost adds VTEPs if necessary
 func (d *OvsDriver) AddPeerHost(node core.ServiceInfo) error {
+log.Errorf("foobitch ovs AddPeerHost start")
 	// Nothing to do if this is our own IP
 	if node.HostAddr == d.localIP {
 		return nil
@@ -634,6 +620,7 @@ func (d *OvsDriver) AddPeerHost(node core.ServiceInfo) error {
 
 // DeletePeerHost deletes associated VTEP
 func (d *OvsDriver) DeletePeerHost(node core.ServiceInfo) error {
+log.Errorf("foobitch ovs DeletePeerHost start")
 	// Nothing to do if this is our own IP
 	if node.HostAddr == d.localIP {
 		return nil
@@ -653,6 +640,7 @@ func (d *OvsDriver) DeletePeerHost(node core.ServiceInfo) error {
 
 // AddMaster adds master node
 func (d *OvsDriver) AddMaster(node core.ServiceInfo) error {
+log.Errorf("foobitch ovs AddMaster start")
 	log.Infof("AddMaster for %+v", node)
 
 	// Add master to vlan and vxlan datapaths
@@ -665,6 +653,7 @@ func (d *OvsDriver) AddMaster(node core.ServiceInfo) error {
 
 // DeleteMaster deletes master node
 func (d *OvsDriver) DeleteMaster(node core.ServiceInfo) error {
+log.Errorf("foobitch ovs DeleteMaster start")
 	log.Infof("DeleteMaster for %+v", node)
 
 	// Delete master from vlan and vxlan datapaths
@@ -677,6 +666,7 @@ func (d *OvsDriver) DeleteMaster(node core.ServiceInfo) error {
 
 // AddBgp adds bgp config by named identifier
 func (d *OvsDriver) AddBgp(id string) error {
+log.Errorf("foobitch ovs AddBgp start")
 	var sw *OvsSwitch
 
 	cfg := mastercfg.CfgBgpState{}
@@ -862,6 +852,7 @@ func (d *OvsDriver) InspectBgp() ([]byte, error) {
 
 // GlobalConfigUpdate sets the global level configs like arp-mode
 func (d *OvsDriver) GlobalConfigUpdate(inst core.InstanceInfo) error {
+log.Errorf("foobitch ovs GlobalConfigUpdate start")
 	// convert the netplugin config to ofnet config
 	// currently, its only ArpMode
 	var cfg ofnet.OfnetGlobalConfig

@@ -740,7 +740,7 @@ func (self *Vxlan) AddEndpoint(endpoint *OfnetEndpoint) error {
 	// Lookup the VTEP for the endpoint
 	vtepPort := self.agent.getvtepTablePort(endpoint.OriginatorIp.String())
 	if vtepPort == nil {
-		log.Warnf("Could not find the VTEP for endpoint: %+v", endpoint)
+		log.Warnf("3 Could not find the VTEP for endpoint: %+v", endpoint)
 
 		// Return since remote host is not known.
 		// When VTEP gets added, we'll re-install the routes

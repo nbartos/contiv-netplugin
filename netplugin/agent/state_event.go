@@ -122,7 +122,7 @@ func delVxGWRoutes(netPlugin *plugin.NetPlugin, gwIP string) {
 // Auto allocate an endpoint for this node
 func processInfraNwCreate(netPlugin *plugin.NetPlugin, nwCfg *mastercfg.CfgNetworkState, opts core.InstanceInfo) (err error) {
 	pluginHost := opts.HostLabel
-
+log.Errorf("foobitch processInfraNwCreate start")
 	// Build endpoint request
 	mreq := master.CreateEndpointRequest{
 		TenantName:  nwCfg.Tenant,
@@ -155,9 +155,18 @@ func processInfraNwCreate(netPlugin *plugin.NetPlugin, nwCfg *mastercfg.CfgNetwo
 
 	// Assign IP to interface
 	ipCIDR := fmt.Sprintf("%s/%d", mresp.EndpointConfig.IPAddress, nwCfg.SubnetLen)
+log.Errorf("foobitch netutils.SetInterfaceIP(%s, %s)", nwCfg.NetworkName, ipCIDR) 
 	err = netutils.SetInterfaceIP(nwCfg.NetworkName, ipCIDR)
 	if err != nil {
 		log.Errorf("Could not assign ip: %s", err)
+
+		if nwCfg.NetworkName == contivVxGWName {
+			log.Errorf("foobitch hack addVxGWRoutes(%s, %s, %s)", netPlugin, mresp.EndpointConfig.IPAddress)
+			addVxGWRoutes(netPlugin, mresp.EndpointConfig.IPAddress)
+		} else {
+			log.Errorf("foobitch hack no addVxGWRoutes")
+		}
+
 		return err
 	}
 
